@@ -53,4 +53,11 @@ Trivy (Security): Scan files for any misconfiguration and vulnerabilities.
 - **AWS Phase 5 (Load Balancer):**  
   - Implemented the Ingress resource and path routing rules to expose Grafana through the shared AWS ALB.
 
-
+[2026-11-11]
+- **AWS Phase 6 (Notification & Alerts):** 
+  - Slack Webhook Integration: Configured Alertmanager routes and receivers to dispatch critical firing alerts and recovery messages directly to a dedicated Slack channel `#alerts-channel`.
+  - Implemented a targeted `ServiceMonitor` custom resource (`monitoring-stack-grafana-custom`) to handle Prometheus metrics collection cleanly, bypassing sub-path routing conflicts (`/grafana/`).
+  - Upgraded and synchronized the monitoring infrastructure using `kube-prometheus-stack` Helm chart version `58.2.2` managed declaratively through Argo CD.
+  - Adjusted Grafana `root_url` and `serve_from_sub_path` parameters to support clean ingress sub-path routing under `/grafana/`
+  - Fixed connection-refused errors on Prometheus target scraping caused by automatic sub-path prefixing on the `/metrics` endpoint.
+  - Suppressed `KubeSchedulerDown` and `KubeControllerManagerDown` rules inside `defaultRules.disabled` to account for AWS EKS managed control plane architecture where master node components run externally.
