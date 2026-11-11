@@ -38,6 +38,7 @@ This repository is constructed in a way that the execution phases (using remote 
     - Fixed Prometheus-to-Grafana scraping metrics path discrepancies by using a dedicated custom `ServiceMonitor` targeting the correct un-prefixed `/metrics` endpoint.
     - Configured routing rules and integrated Slack webhook notifications on a dedicated channel(`#alerts-channel`).
     - Suppressed false-positive control plane alerts (`KubeSchedulerDown`, `KubeControllerManagerDown`).
+   
 ---
 
 ## Backend & State Architecture
