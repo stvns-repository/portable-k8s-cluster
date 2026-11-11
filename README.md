@@ -32,11 +32,12 @@ This repository is constructed in a way that the execution phases (using remote 
     - Deployed a shared external Application Load Balancer (ALB) utilizing target-type ip for container-native routing.
     - Configured path-based routing (/argocd/) targeting the Argo CD server service.
     - Configured path-based routing (/grafana/) targeting the Grafana service.
+
 - **Phase 6: Notification and Alerts**
   - **AWS:** 
     - Deployed and configured `kube-prometheus-stack` via Argo CD with automated synchronization and server-side apply policies.
     - Fixed Prometheus-to-Grafana scraping metrics path discrepancies by using a dedicated custom `ServiceMonitor` targeting the correct un-prefixed `/metrics` endpoint.
-    - Configured routing rules and integrated Slack webhook notifications on a dedicated channel(`#alerts-channel`).
+    - Configured routing rules and integrated Slack webhook notifications on a dedicated channel (`#alerts-channel`).
     - Suppressed false-positive control plane alerts (`KubeSchedulerDown`, `KubeControllerManagerDown`).
 ---
 
