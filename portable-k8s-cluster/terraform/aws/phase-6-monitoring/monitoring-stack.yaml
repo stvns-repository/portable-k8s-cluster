@@ -1,0 +1,100 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: kube-prometheus-stack
+    repoURL: https://prometheus-community.github.io/helm-charts
+    targetRevision: 58.2.2
+    helm:
+      values: |
+        alertmanager:
+          enabled: true
+          config:
+            global:
+              resolve_timeout: 5m
+            route:
+              group_by: ['alertname', 'namespace']
+              group_wait: 30s
+              group_interval: 5m
+              repeat_interval: 12h
+              receiver: 'slack-notifications'
+              routes:
+              - matchers:
+                - alertname = "Watchdog"
+                receiver: 'null'
+            receivers:
+            - name: 'null'
+            - name: 'slack-notifications'
+              slack_configs:
+              - api_url: 'https://hooks.slack.com/services/<UNIQUE_TOKEN>' # Slack Webhook
+                channel: '#alerts-channel' # Slack channel to receive alerts
+                send_resolved: true
+                text: "*{{ .Status | toUpper }}*: {{ .CommonLabels.alertname }}\n{{ range .Alerts }}{{ .Annotations.description }}{{ end }}"
+        prometheus:
+          prometheusSpec:
+            replicas: 1
+            serviceMonitorSelectorNilUsesHelmValues: false
+        kubeScheduler:
+          enabled: false
+        kubeControllerManager:
+          enabled: false    
+        defaultRules:
+          disabled:
+            KubeSchedulerDown: true
+            KubeControllerManagerDown: true
+        grafana:
+          grafana.ini:
+            server:
+              root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana/"
+              serve_from_sub_path: true
+          serviceMonitor:
+            enabled: false
+          additionalDataSources:
+            - name: Prometheus
+              type: prometheus
+              access: proxy
+              url: http://monitoring-stack-kube-prom-prometheus.monitoring.svc.cluster.local:9090
+              isDefault: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+  ignoreDifferences:
+    - group: monitoring.coreos.com
+      kind: Prometheus
+      jsonPointers:
+        - /status/terminatingReplicas
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /status/terminatingReplicas
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+        - /status/terminatingReplicas
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: monitoring-stack-grafana-custom
+  namespace: monitoring
+  labels:
+    release: monitoring-stack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: grafana
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
