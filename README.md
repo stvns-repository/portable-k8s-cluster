@@ -56,21 +56,12 @@ You are free to remove the trivy.yml from the .github/workflows directory.
 
 ---
 ## Deployment & Verification
+Because each phase uses decoupled remote state (`backend.hcl`) and specific prerequisites, please follow the dedicated setup guides inside each directory:
 
-### Phase 1 Initializations
-```bash
-# GCP Foundation
-cd terraform/gcp/phase-1-foundation
-terraform init -backend-config=backend.hcl
-terraform plan -var="project_id=YOUR_PROJECT_ID"
-terraform apply -var="project_id=YOUR_PROJECT_ID"
-
-# AWS Foundation
-cd terraform/aws/phase-1-foundation
-terraform init -backend-config=backend.hcl
-terraform plan
-terraform apply
-
+- **Phase 1: Foundation**
+  - [AWS Foundation Guide](./terraform/aws/phase-1-foundation/README.md)
+  - [GCP Foundation Guide](./terraform/gcp/phase-1-foundation/README.md) *(Upcoming)*
+  
 ### Phase 2 Initialization
 *(Upcoming)*
 
