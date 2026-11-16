@@ -4,6 +4,8 @@
 
 This very first phase will create the underlying networking infrastructure (VPC, Subnets, Routing, NACLs, & Security groups), as well as the EKS cluster, and the initial IAM policies.
 
+Make sure that your terminal is on the correct location: `/portable-k8s-cluster/terraform/aws/phase-1-foundation/`
+
 - **Pre-requisites**
   - **1.**: Login to your AWS Account and create an S3 bucket (with default security - not set to public) on `us-west-2` (Oregon) region. You are free to use a different region but make sure to update the `backend.aws.tf` file.
   - **2.**: Create a new file named `backend.hcl` with the following details:
